@@ -1,3 +1,2 @@
-# System packages for Streamlit Community Cloud
 tesseract-ocr
 poppler-utils
