@@ -1,0 +1,176 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Weight Certificate Import Schema",
+  "description": "Schema for importing weight certificate data from OCR-processed PDFs",
+  "type": "object",
+  "required": [
+    "certificate_number",
+    "title",
+    "pages",
+    "issuing_lab",
+    "weights"
+  ],
+  "properties": {
+    "certificate_number": {
+      "type": "string",
+      "description": "Unique certificate identifier",
+      "pattern": "^[A-Z0-9/ -]+$",
+      "minLength": 1
+    },
+    "title": {
+      "type": "string",
+      "description": "Certificate title",
+      "minLength": 1
+    },
+    "pages": {
+      "type": "integer",
+      "description": "Number of pages in the certificate",
+      "minimum": 1,
+      "maximum": 50
+    },
+    "issuing_lab": {
+      "type": "string",
+      "description": "Name of the issuing laboratory",
+      "minLength": 1
+    },
+    "accreditation_body": {
+      "type": "string",
+      "description": "Accreditation body (e.g., SANAS)",
+      "minLength": 1
+    },
+    "date_issued": {
+      "type": "string",
+      "description": "Certificate issue date",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+    },
+    "date_expiry": {
+      "type": "string",
+      "description": "Certificate expiry date",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+    },
+    "calibration_dates": {
+      "type": "array",
+      "description": "List of calibration dates found in the certificate",
+      "items": {
+        "type": "string",
+        "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+      }
+    },
+    "customer_name": {
+      "type": "string",
+      "description": "Customer name or organization"
+    },
+    "site_address": {
+      "type": "string",
+      "description": "Calibration site address"
+    },
+    "contact_person": {
+      "type": "string",
+      "description": "Contact person for the calibration"
+    },
+    "weights": {
+      "type": "array",
+      "description": "List of individual weight measurements",
+      "items": {
+        "$ref": "#/definitions/weight"
+      }
+    },
+    "sets": {
+      "type": "array",
+      "description": "List of weight sets containing multiple weights",
+      "items": {
+        "$ref": "#/definitions/weight_set"
+      }
+    }
+  },
+  "definitions": {
+    "weight": {
+      "type": "object",
+      "required": [
+        "weight_id",
+        "nominal",
+        "actual_after",
+        "uncertainty"
+      ],
+      "properties": {
+        "weight_id": {
+          "type": "string",
+          "description": "Unique identifier for the weight (e.g., WFS001, WES123)",
+          "pattern": "^[A-Z0-9-]+$",
+          "minLength": 1
+        },
+        "nominal": {
+          "type": "number",
+          "description": "Nominal weight value in grams",
+          "minimum": 0
+        },
+        "actual_before": {
+          "type": "number",
+          "description": "Actual weight before calibration in grams",
+          "minimum": 0
+        },
+        "actual_after": {
+          "type": "number",
+          "description": "Actual weight after calibration in grams",
+          "minimum": 0
+        },
+        "uncertainty": {
+          "type": "number",
+          "description": "Measurement uncertainty in grams",
+          "minimum": 0
+        },
+        "correction": {
+          "type": "number",
+          "description": "Correction value applied during calibration"
+        },
+        "temperature": {
+          "type": "number",
+          "description": "Temperature during calibration in Celsius"
+        },
+        "humidity": {
+          "type": "number",
+          "description": "Humidity during calibration as percentage"
+        },
+        "notes": {
+          "type": "string",
+          "description": "Additional notes or observations"
+        }
+      },
+      "additionalProperties": false
+    },
+    "weight_set": {
+      "type": "object",
+      "required": [
+        "id",
+        "weights"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the weight set (e.g., W1, W2)",
+          "pattern": "^W[0-9]+$",
+          "minLength": 1
+        },
+        "description": {
+          "type": "string",
+          "description": "Description of the weight set"
+        },
+        "total_nominal": {
+          "type": "number",
+          "description": "Total nominal weight of all weights in the set",
+          "minimum": 0
+        },
+        "weights": {
+          "type": "array",
+          "description": "Individual weights in this set",
+          "items": {
+            "$ref": "#/definitions/weight"
+          },
+          "minItems": 1
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": true
+}
