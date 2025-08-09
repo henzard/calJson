@@ -1,176 +1,606 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "Weight Certificate Import Schema",
-  "description": "Schema for importing weight certificate data from OCR-processed PDFs",
+  "description": "JSON schema for importing weight calibration certificates into the WOW Calibration system",
   "type": "object",
-  "required": [
-    "certificate_number",
-    "title",
-    "pages",
-    "issuing_lab",
-    "weights"
-  ],
+  "required": ["certificate_number", "weights"],
   "properties": {
     "certificate_number": {
       "type": "string",
-      "description": "Unique certificate identifier",
-      "pattern": "^[A-Z0-9/ -]+$",
-      "minLength": 1
+      "description": "Unique certificate number (REQUIRED)",
+      "minLength": 1,
+      "examples": ["CAL-2024-001", "WC-2024-123", "2024-001"]
     },
     "title": {
       "type": "string",
-      "description": "Certificate title",
-      "minLength": 1
+      "description": "Certificate title or description",
+      "examples": ["Weight Set Calibration Certificate", "Mass Standards Calibration"]
     },
     "pages": {
       "type": "integer",
       "description": "Number of pages in the certificate",
       "minimum": 1,
-      "maximum": 50
+      "examples": [1, 2, 5]
     },
     "issuing_lab": {
       "type": "string",
-      "description": "Name of the issuing laboratory",
-      "minLength": 1
+      "description": "Name of the issuing laboratory (REQUIRED)",
+      "minLength": 1,
+      "examples": ["National Metrology Institute", "WOW Calibration", "NMISA"]
     },
     "accreditation_body": {
       "type": "string",
-      "description": "Accreditation body (e.g., SANAS)",
-      "minLength": 1
+      "description": "Accreditation body for the issuing laboratory",
+      "examples": ["SANAS", "ISO 17025", "ILAC"]
     },
     "date_issued": {
       "type": "string",
-      "description": "Certificate issue date",
-      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
-    },
-    "date_expiry": {
-      "type": "string",
-      "description": "Certificate expiry date",
-      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+      "format": "date",
+      "description": "Date when certificate was issued (YYYY-MM-DD format)",
+      "examples": ["2024-01-15", "2024-12-31"]
     },
     "calibration_dates": {
       "type": "array",
-      "description": "List of calibration dates found in the certificate",
+      "description": "Array of calibration dates",
       "items": {
         "type": "string",
-        "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
-      }
+        "format": "date"
+      },
+      "examples": [["2024-01-10", "2024-01-12"]]
     },
     "customer_name": {
       "type": "string",
-      "description": "Customer name or organization"
+      "description": "Name of the customer or organization",
+      "examples": ["WOW Calibration", "ABC Laboratories", "XYZ Company"]
     },
     "site_address": {
       "type": "string",
-      "description": "Calibration site address"
+      "description": "Site address where calibration was performed",
+      "examples": ["Van Dyk Business Park, Unit 71", "123 Main Street, City"]
     },
     "contact_person": {
       "type": "string",
-      "description": "Contact person for the calibration"
+      "description": "Contact person for the customer",
+      "examples": ["John Doe", "Jane Smith"]
+    },
+    "location": {
+      "type": "string",
+      "description": "Location where calibration was performed",
+      "examples": ["Laboratory A", "Calibration Room", "On-site"]
+    },
+    "procedure": {
+      "type": "string",
+      "description": "Procedure or standard followed",
+      "examples": ["ISO 17025", "OIML R111", "Internal Procedure"]
+    },
+    "compliance_statement": {
+      "type": "string",
+      "description": "Compliance statement or declaration",
+      "examples": ["Compliant with international standards", "Meets ISO 17025 requirements"]
+    },
+    "environment": {
+      "type": "object",
+      "description": "Environmental conditions during calibration",
+      "properties": {
+        "temperature": {
+          "type": "string",
+          "description": "Temperature during calibration",
+          "examples": ["20°C ± 2°C", "23°C"]
+        },
+        "humidity": {
+          "type": "string",
+          "description": "Humidity during calibration",
+          "examples": ["45% ± 5%", "50%"]
+        },
+        "pressure": {
+          "type": "string",
+          "description": "Atmospheric pressure during calibration",
+          "examples": ["1013.25 hPa", "Standard atmospheric pressure"]
+        }
+      },
+      "additionalProperties": true
+    },
+    "personnel": {
+      "type": "object",
+      "description": "Personnel information",
+      "properties": {
+        "calibrated_by": {
+          "type": "string",
+          "description": "Person who performed the calibration",
+          "examples": ["John Doe", "Jane Smith"]
+        },
+        "checked_by": {
+          "type": "string",
+          "description": "Person who checked the calibration",
+          "examples": ["Mike Johnson", "Sarah Wilson"]
+        },
+        "authorized_by": {
+          "type": "string",
+          "description": "Person who authorized the certificate",
+          "examples": ["Dr. Robert Brown", "Prof. Lisa Davis"]
+        }
+      },
+      "additionalProperties": true
+    },
+    "traceability": {
+      "type": "object",
+      "description": "Traceability information",
+      "properties": {
+        "source": {
+          "type": "string",
+          "description": "Traceability source",
+          "examples": ["National Measurement Institute", "NMISA", "International Bureau of Weights and Measures"]
+        },
+        "chain": {
+          "type": "string",
+          "description": "Traceability chain description",
+          "examples": ["Traceable to SI through NMISA", "Direct traceability to national standards"]
+        },
+        "uncertainty": {
+          "type": "string",
+          "description": "Traceability uncertainty",
+          "examples": ["±0.001 mg", "Expanded uncertainty (k=2)"]
+        }
+      },
+      "additionalProperties": true
+    },
+    "equipment_used": {
+      "type": "array",
+      "description": "Equipment used during calibration",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Equipment name",
+            "examples": ["Analytical Balance", "Comparator", "Mass Comparator"]
+          },
+          "model": {
+            "type": "string",
+            "description": "Equipment model",
+            "examples": ["Mettler Toledo XS205", "Sartorius MC1"]
+          },
+          "serial_number": {
+            "type": "string",
+            "description": "Equipment serial number",
+            "examples": ["SN123456", "MC-2024-001"]
+          },
+          "calibration_date": {
+            "type": "string",
+            "format": "date",
+            "description": "Equipment calibration date",
+            "examples": ["2024-01-01"]
+          }
+        },
+        "additionalProperties": true
+      }
     },
     "weights": {
       "type": "array",
-      "description": "List of individual weight measurements",
+      "description": "Array of weight measurements (REQUIRED)",
+      "minItems": 1,
       "items": {
-        "$ref": "#/definitions/weight"
+        "type": "object",
+        "required": ["weight_id"],
+        "properties": {
+          "weight_id": {
+            "type": "string",
+            "description": "Unique identifier for the weight (REQUIRED). Maps to serialNumber internally.",
+            "minLength": 1,
+            "examples": ["WFS7", "W1", "100kg-001", "WS-001"]
+          },
+          "weightId": {
+            "type": "string",
+            "description": "Alternative field for weight identifier",
+            "examples": ["WFS7", "W1", "100kg-001"]
+          },
+          "id": {
+            "type": "string",
+            "description": "Alternative field for weight identifier",
+            "examples": ["WFS7", "W1", "100kg-001"]
+          },
+          "serial": {
+            "type": "string",
+            "description": "Alternative field for weight identifier",
+            "examples": ["SN001", "12345", "WS-2024-001"]
+          },
+          "serial_number": {
+            "type": "string",
+            "description": "Alternative field for weight identifier",
+            "examples": ["SN001", "12345", "WS-2024-001"]
+          },
+          "serialNumber": {
+            "type": "string",
+            "description": "Alternative field for weight identifier",
+            "examples": ["SN001", "12345", "WS-2024-001"]
+          },
+          "identifier": {
+            "type": "string",
+            "description": "Alternative field for weight identifier",
+            "examples": ["WFS7", "W1", "100kg-001"]
+          },
+          "nominal": {
+            "type": "number",
+            "description": "Nominal value of the weight in grams (REQUIRED if no alternative provided)",
+            "minimum": 0,
+            "examples": [20000, 1000, 500, 100, 50, 20, 10, 5, 2, 1, 0.5, 0.2, 0.1]
+          },
+          "nominal_value": {
+            "type": "number",
+            "description": "Alternative field for nominal value in grams",
+            "minimum": 0,
+            "examples": [20000, 1000, 500, 100]
+          },
+          "nominalValue": {
+            "type": "number",
+            "description": "Alternative field for nominal value in grams",
+            "minimum": 0,
+            "examples": [20000, 1000, 500, 100]
+          },
+          "nominalMass": {
+            "type": "number",
+            "description": "Alternative field for nominal value in grams",
+            "minimum": 0,
+            "examples": [20000, 1000, 500, 100]
+          },
+          "nom": {
+            "type": "number",
+            "description": "Alternative field for nominal value in grams",
+            "minimum": 0,
+            "examples": [20000, 1000, 500, 100]
+          },
+          "mass": {
+            "type": "number",
+            "description": "Alternative field for nominal value in grams",
+            "minimum": 0,
+            "examples": [20000, 1000, 500, 100]
+          },
+          "massNominal": {
+            "type": "number",
+            "description": "Alternative field for nominal value in grams",
+            "minimum": 0,
+            "examples": [20000, 1000, 500, 100]
+          },
+          "actual_before": {
+            "type": "number",
+            "description": "Actual mass before calibration in grams",
+            "examples": [19999.9, 999.998, 499.997, 100.001]
+          },
+          "actualBefore": {
+            "type": "number",
+            "description": "Alternative field for actual mass before calibration in grams",
+            "examples": [19999.9, 999.998, 499.997, 100.001]
+          },
+          "before": {
+            "type": "number",
+            "description": "Alternative field for actual mass before calibration in grams",
+            "examples": [19999.9, 999.998, 499.997, 100.001]
+          },
+          "actual": {
+            "type": "number",
+            "description": "Alternative field for actual mass (before or after) in grams",
+            "examples": [20000.1, 999.999, 499.998, 100.000]
+          },
+          "massBefore": {
+            "type": "number",
+            "description": "Alternative field for actual mass before calibration in grams",
+            "examples": [19999.9, 999.998, 499.997, 100.001]
+          },
+          "measuredBefore": {
+            "type": "number",
+            "description": "Alternative field for actual mass before calibration in grams",
+            "examples": [19999.9, 999.998, 499.997, 100.001]
+          },
+          "actual_after": {
+            "type": "number",
+            "description": "Actual mass after calibration in grams",
+            "examples": [20000.1, 999.999, 499.998, 100.000]
+          },
+          "actualAfter": {
+            "type": "number",
+            "description": "Alternative field for actual mass after calibration in grams",
+            "examples": [20000.1, 999.999, 499.998, 100.000]
+          },
+          "after": {
+            "type": "number",
+            "description": "Alternative field for actual mass after calibration in grams",
+            "examples": [20000.1, 999.999, 499.998, 100.000]
+          },
+          "value": {
+            "type": "number",
+            "description": "Alternative field for actual mass after calibration in grams",
+            "examples": [20000.1, 999.999, 499.998, 100.000]
+          },
+          "massAfter": {
+            "type": "number",
+            "description": "Alternative field for actual mass after calibration in grams",
+            "examples": [20000.1, 999.999, 499.998, 100.000]
+          },
+          "measuredAfter": {
+            "type": "number",
+            "description": "Alternative field for actual mass after calibration in grams",
+            "examples": [20000.1, 999.999, 499.998, 100.000]
+          },
+          "measured": {
+            "type": "number",
+            "description": "Alternative field for actual mass after calibration in grams",
+            "examples": [20000.1, 999.999, 499.998, 100.000]
+          },
+          "massValue": {
+            "type": "number",
+            "description": "Alternative field for actual mass after calibration in grams",
+            "examples": [20000.1, 999.999, 499.998, 100.000]
+          },
+          "uncertainty": {
+            "type": "number",
+            "description": "Measurement uncertainty in grams",
+            "minimum": 0,
+            "examples": [0.5, 0.002, 0.001, 0.0005]
+          },
+          "std_uncertainty": {
+            "type": "number",
+            "description": "Alternative field for standard uncertainty in grams",
+            "minimum": 0,
+            "examples": [0.5, 0.002, 0.001, 0.0005]
+          },
+          "u": {
+            "type": "number",
+            "description": "Alternative field for uncertainty in grams",
+            "minimum": 0,
+            "examples": [0.5, 0.002, 0.001, 0.0005]
+          },
+          "uncertainty_value": {
+            "type": "number",
+            "description": "Alternative field for uncertainty in grams",
+            "minimum": 0,
+            "examples": [0.5, 0.002, 0.001, 0.0005]
+          },
+          "expanded_uncertainty": {
+            "type": "number",
+            "description": "Alternative field for expanded uncertainty in grams",
+            "minimum": 0,
+            "examples": [0.5, 0.002, 0.001, 0.0005]
+          },
+          "combined_uncertainty": {
+            "type": "number",
+            "description": "Alternative field for combined uncertainty in grams",
+            "minimum": 0,
+            "examples": [0.5, 0.002, 0.001, 0.0005]
+          },
+          "class": {
+            "type": "string",
+            "description": "Accuracy class of the weight",
+            "examples": ["E1", "E2", "F1", "F2", "M1", "M2", "M3"]
+          },
+          "accuracy_class": {
+            "type": "string",
+            "description": "Alternative field for accuracy class of the weight",
+            "examples": ["E1", "E2", "F1", "F2", "M1", "M2", "M3"]
+          },
+          "grade": {
+            "type": "string",
+            "description": "Alternative field for accuracy class of the weight",
+            "examples": ["E1", "E2", "F1", "F2", "M1", "M2", "M3"]
+          },
+          "oiml_class": {
+            "type": "string",
+            "description": "Alternative field for OIML accuracy class of the weight",
+            "examples": ["E1", "E2", "F1", "F2", "M1", "M2", "M3"]
+          },
+          "status": {
+            "type": "string",
+            "description": "Status of the weight",
+            "examples": ["pass", "fail", "conditional", "pending"]
+          },
+          "result": {
+            "type": "string",
+            "description": "Alternative field for status of the weight",
+            "examples": ["pass", "fail", "conditional", "pending"]
+          },
+          "pass_fail": {
+            "type": "string",
+            "description": "Alternative field for status of the weight",
+            "examples": ["pass", "fail", "conditional", "pending"]
+          },
+          "section": {
+            "type": "string",
+            "description": "Section or group identifier",
+            "default": "Individual",
+            "examples": ["Individual", "Set1", "W-1", "Group A"]
+          },
+          "set_id": {
+            "type": "string",
+            "description": "Alternative field for section or group identifier",
+            "examples": ["Individual", "Set1", "W-1", "Group A"]
+          },
+          "massSet": {
+            "type": "string",
+            "description": "Alternative field for section or group identifier",
+            "examples": ["Individual", "Set1", "W-1", "Group A"]
+          },
+          "grouping": {
+            "type": "string",
+            "description": "Alternative field for section or group identifier",
+            "examples": ["Individual", "Set1", "W-1", "Group A"]
+          },
+          "line": {
+            "type": "integer",
+            "description": "Line number in the certificate",
+            "minimum": 1,
+            "examples": [1, 2, 3, 4, 5]
+          },
+          "index": {
+            "type": "integer",
+            "description": "Alternative field for line number in the certificate",
+            "minimum": 0,
+            "examples": [0, 1, 2, 3, 4]
+          },
+          "material": {
+            "type": "string",
+            "description": "Material of the weight",
+            "examples": ["Stainless Steel", "Cast Iron", "Brass", "Aluminum"]
+          },
+          "shape": {
+            "type": "string",
+            "description": "Shape of the weight",
+            "examples": ["Cylindrical", "Rectangular", "Spherical", "Ring"]
+          },
+          "notes": {
+            "type": "string",
+            "description": "Additional notes about the weight",
+            "examples": ["Special handling required", "Damaged during transport", "Re-calibrated"]
+          }
+        },
+        "additionalProperties": true
       }
     },
     "sets": {
       "type": "array",
-      "description": "List of weight sets containing multiple weights",
+      "description": "Alternative structure for weight sets with multiple groups",
       "items": {
-        "$ref": "#/definitions/weight_set"
-      }
-    }
-  },
-  "definitions": {
-    "weight": {
-      "type": "object",
-      "required": [
-        "weight_id",
-        "nominal",
-        "actual_after",
-        "uncertainty"
-      ],
-      "properties": {
-        "weight_id": {
-          "type": "string",
-          "description": "Unique identifier for the weight (e.g., WFS001, WES123)",
-          "pattern": "^[A-Z0-9-]+$",
-          "minLength": 1
-        },
-        "nominal": {
-          "type": "number",
-          "description": "Nominal weight value in grams",
-          "minimum": 0
-        },
-        "actual_before": {
-          "type": "number",
-          "description": "Actual weight before calibration in grams",
-          "minimum": 0
-        },
-        "actual_after": {
-          "type": "number",
-          "description": "Actual weight after calibration in grams",
-          "minimum": 0
-        },
-        "uncertainty": {
-          "type": "number",
-          "description": "Measurement uncertainty in grams",
-          "minimum": 0
-        },
-        "correction": {
-          "type": "number",
-          "description": "Correction value applied during calibration"
-        },
-        "temperature": {
-          "type": "number",
-          "description": "Temperature during calibration in Celsius"
-        },
-        "humidity": {
-          "type": "number",
-          "description": "Humidity during calibration as percentage"
-        },
-        "notes": {
-          "type": "string",
-          "description": "Additional notes or observations"
-        }
-      },
-      "additionalProperties": false
-    },
-    "weight_set": {
-      "type": "object",
-      "required": [
-        "id",
-        "weights"
-      ],
-      "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique identifier for the weight set (e.g., W1, W2)",
-          "pattern": "^W[0-9]+$",
-          "minLength": 1
-        },
-        "description": {
-          "type": "string",
-          "description": "Description of the weight set"
-        },
-        "total_nominal": {
-          "type": "number",
-          "description": "Total nominal weight of all weights in the set",
-          "minimum": 0
-        },
-        "weights": {
-          "type": "array",
-          "description": "Individual weights in this set",
-          "items": {
-            "$ref": "#/definitions/weight"
+        "type": "object",
+        "required": ["id", "weights"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Set identifier",
+            "examples": ["Set1", "W-1", "Group A"]
           },
-          "minItems": 1
+          "name": {
+            "type": "string",
+            "description": "Set name",
+            "examples": ["Main Set", "Working Set", "Reference Set"]
+          },
+          "weights": {
+            "type": "array",
+            "description": "Weights in this set",
+            "minItems": 1,
+            "items": {
+              "$ref": "#/properties/weights/items"
+            }
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "meta": {
+      "type": "object",
+      "description": "Alternative nested structure for certificate metadata",
+      "properties": {
+        "certificateNumber": {
+          "type": "string",
+          "description": "Certificate number in nested structure"
+        },
+        "title": {
+          "type": "string",
+          "description": "Certificate title in nested structure"
+        },
+        "issuer": {
+          "type": "object",
+          "properties": {
+            "labName": {
+              "type": "string",
+              "description": "Laboratory name in nested structure"
+            },
+            "accreditationBody": {
+              "type": "string",
+              "description": "Accreditation body in nested structure"
+            }
+          },
+          "additionalProperties": true
         }
       },
-      "additionalProperties": false
+      "additionalProperties": true
+    },
+    "customer": {
+      "type": "object",
+      "description": "Alternative nested structure for customer information",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Customer name in nested structure"
+        },
+        "siteAddress": {
+          "type": "string",
+          "description": "Site address in nested structure"
+        },
+        "contactPerson": {
+          "type": "string",
+          "description": "Contact person in nested structure"
+        }
+      },
+      "additionalProperties": true
     }
   },
-  "additionalProperties": true
+  "additionalProperties": true,
+  "examples": [
+    {
+      "certificate_number": "CAL-2024-001",
+      "title": "Weight Set Calibration Certificate",
+      "issuing_lab": "National Metrology Institute",
+      "accreditation_body": "SANAS",
+      "date_issued": "2024-01-15",
+      "customer_name": "WOW Calibration",
+      "site_address": "Van Dyk Business Park, Unit 71",
+      "contact_person": "John Doe",
+      "location": "Laboratory A",
+      "procedure": "ISO 17025",
+      "compliance_statement": "Compliant with international standards",
+      "weights": [
+        {
+          "weight_id": "WFS7",
+          "nominal": 20000,
+          "actual_after": 0.1,
+          "uncertainty": 0.5
+        },
+        {
+          "weight_id": "WFS10",
+          "nominal": 20000,
+          "actual_after": 1.0,
+          "uncertainty": 0.5
+        }
+      ]
+    },
+    {
+      "meta": {
+        "certificateNumber": "WC-2024-123",
+        "issuer": {
+          "labName": "WOW Calibration",
+          "accreditationBody": "SANAS"
+        }
+      },
+      "customer": {
+        "name": "ABC Laboratories",
+        "siteAddress": "123 Main Street, City"
+      },
+      "weights": [
+        {
+          "weight_id": "100kg-001",
+          "nominal": 100000,
+          "actual_after": 99999.995,
+          "uncertainty": 0.005,
+          "class": "M1"
+        }
+      ],
+      "sets": [
+        {
+          "id": "W5",
+          "weights": [
+            {
+              "weight_id": "W5-1000",
+              "nominal": 1000.0,
+              "actual_after": 999.99,
+              "uncertainty": 0.03
+            },
+            {
+              "weight_id": "W5-500",
+              "nominal": 500.0,
+              "actual_after": 500.01,
+              "uncertainty": 0.02
+            }
+          ]
+        }
+      ]
+    }
+  ]
 }

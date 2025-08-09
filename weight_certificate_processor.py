@@ -188,19 +188,29 @@ class WeightCertificateProcessor:
             match = re.search(pattern, meta_text, re.I)
             return match.group(1).strip() if match else default
         
-        # Extract metadata fields
+        # Extract metadata fields - updated to match new schema
+        certificate_number = grab_pattern(r"Certificate\s+No\.\s*([A-Z0-9/ -]+)")
+        
+        # Only include certificate_number if found, as it's required by schema
+        if not certificate_number:
+            certificate_number = f"CERT-{datetime.now().strftime('%Y%m%d-%H%M%S')}"
+            logger.warning("No certificate number found, generated temporary ID")
+        
         metadata = {
-            "certificate_number": grab_pattern(r"Certificate\s+No\.\s*([A-Z0-9/ -]+)"),
-            "title": "ON-SITE CALIBRATION CERTIFICATE",
+            "certificate_number": certificate_number,
+            "title": grab_pattern(r"(ON-SITE CALIBRATION CERTIFICATE|CALIBRATION CERTIFICATE)", "Weight Calibration Certificate"),
             "pages": 12,  # Default for CM-25-181B type certificates
             "issuing_lab": grab_pattern(r"(\bCM LAB.*)", "CM LAB (Pty) Ltd"),
-            "accreditation_body": "SANAS",
+            "accreditation_body": grab_pattern(r"(SANAS|ISO[0-9 ]+|ILAC)", "SANAS"),
             "date_issued": grab_pattern(r"Date of Issue:\s*([0-9-]+)"),
             "date_expiry": grab_pattern(r"Date of Expiry:\s*([0-9-]+)"),
             "calibration_dates": re.findall(r"20[0-9]{2}-[0-9]{2}-[0-9]{2}", meta_text),
             "customer_name": grab_pattern(r"Calibration of:\s*([\w ].+?)\s*(?:Calibration Date|$)"),
-            "site_address": "c/o Vlei & John Mitten St, Douglas Valley SH, Deaglesgift, Bloemfontein",
+            "site_address": grab_pattern(r"(c/o\s+.*?(?:Bloemfontein|Street|St).*?)(?:\n|$)", "Site address not specified"),
             "contact_person": grab_pattern(r"Contact details:\s*([A-Za-z ].+?)(?:[0-9]|$)"),
+            # Additional fields supported by new schema
+            "procedure": grab_pattern(r"(ISO[0-9 ]+|OIML[A-Z0-9 ]+)", ""),
+            "compliance_statement": grab_pattern(r"(Compliant|Meets|According to).*", ""),
         }
         
         logger.info(f"Extracted metadata: {metadata['certificate_number']}")
