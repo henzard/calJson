@@ -246,16 +246,40 @@ class WeightCertificateProcessor:
                     prefix, num, after_value, uncertainty = table_match.groups()
                     weight_id = f"{prefix}{num}"
                     
-                    # Parse numeric values (handle different decimal separators)
-                    actual_after = float(after_value.replace('.', '').replace(',', '.'))
-                    uncertainty_val = float(uncertainty.replace(',', '.'))
-                    
-                    weights.append({
-                        "weight_id": weight_id,
-                        "nominal": 20000,  # 20kg weights
-                        "actual_after": actual_after,
-                        "uncertainty": uncertainty_val,
-                    })
+                    try:
+                        # Parse numeric values (handle different decimal separators)
+                        # Clean and validate before conversion
+                        after_clean = after_value.strip()
+                        uncertainty_clean = uncertainty.strip()
+                        
+                        # Skip if empty or just punctuation
+                        if not after_clean or after_clean in ['.', ','] or not uncertainty_clean or uncertainty_clean in ['.', ',']:
+                            logger.warning(f"Skipping invalid numeric values: '{after_value}', '{uncertainty}'")
+                            continue
+                            
+                        # Handle European vs US number formats
+                        if ',' in after_clean and '.' in after_clean:
+                            # Format like 20.000,12 (European)
+                            actual_after = float(after_clean.replace('.', '').replace(',', '.'))
+                        elif ',' in after_clean:
+                            # Format like 20000,12 (European decimal)
+                            actual_after = float(after_clean.replace(',', '.'))
+                        else:
+                            # Format like 20000.12 (US)
+                            actual_after = float(after_clean)
+                        
+                        uncertainty_val = float(uncertainty_clean.replace(',', '.'))
+                        
+                        weights.append({
+                            "weight_id": weight_id,
+                            "nominal": 20000,  # 20kg weights
+                            "actual_after": actual_after,
+                            "uncertainty": uncertainty_val,
+                        })
+                        
+                    except (ValueError, AttributeError) as e:
+                        logger.warning(f"Could not parse weight values from line: {line} - {e}")
+                        continue
                     continue
                 
                 # Check for small weight set headers (pages 9-12)
@@ -277,10 +301,37 @@ class WeightCertificateProcessor:
                     
                     if len(numbers) >= 3:  # Need at least nominal, actual, uncertainty
                         try:
+                            # Clean and validate numbers
+                            clean_numbers = []
+                            for num in numbers[:3]:  # Only take first 3 numbers
+                                if not num or num in ['.', ',']:
+                                    continue
+                                clean_numbers.append(num)
+                            
+                            if len(clean_numbers) < 3:
+                                logger.warning(f"Insufficient valid numbers in line: {line}")
+                                continue
+                            
                             # Parse values (handle different decimal formats)
-                            nominal = float(numbers[0].replace('.', '').replace(',', ''))
-                            actual_after = float(numbers[1].replace('.', '').replace(',', '.'))
-                            uncertainty_val = float(numbers[2].replace(',', '.'))
+                            def parse_number(num_str, is_weight=False):
+                                """Parse number handling different decimal formats"""
+                                num_str = num_str.strip()
+                                if ',' in num_str and '.' in num_str:
+                                    # European format: 1.000,50
+                                    if is_weight:
+                                        return float(num_str.replace('.', '').replace(',', '.'))
+                                    else:
+                                        return float(num_str.replace('.', '').replace(',', '.'))
+                                elif ',' in num_str:
+                                    # Decimal comma: 1000,50
+                                    return float(num_str.replace(',', '.'))
+                                else:
+                                    # Standard format: 1000.50
+                                    return float(num_str)
+                            
+                            nominal = parse_number(clean_numbers[0], is_weight=True)
+                            actual_after = parse_number(clean_numbers[1])
+                            uncertainty_val = parse_number(clean_numbers[2])
                             
                             # Generate weight ID
                             weight_id = f"{current_set['id']}-{int(nominal)}"
