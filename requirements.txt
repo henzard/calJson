@@ -1,45 +1,10 @@
-# Core Streamlit framework
-streamlit>=1.28.0
-
-# PDF processing and image conversion
-pdf2image>=1.16.0
-Pillow>=8.0.0
-
-# OCR (Optical Character Recognition)
-pytesseract>=0.3.10
-
-# JSON schema validation
-jsonschema>=4.19.0
-
-# Additional utilities
-pathlib2>=2.3.7; python_version < '3.4'
-
-# Optional: Better error handling and logging
-loguru>=0.7.0
-
-# Optional: Progress bars and utilities
-tqdm>=4.66.0
-
-# Note: You'll also need to install Tesseract OCR separately:
-# 
-# Windows:
-#   Download from: https://github.com/UB-Mannheim/tesseract/wiki
-#   Or use: winget install UB-Mannheim.TesseractOCR
-#
-# macOS:
-#   brew install tesseract
-#
-# Ubuntu/Debian:
-#   sudo apt install tesseract-ocr
-#
-# You may also need poppler-utils for pdf2image:
-#
-# Windows:
-#   Download from: https://github.com/oschwartz10612/poppler-windows/releases
-#   Add to PATH or set POPPLER_PATH environment variable
-#
-# macOS:
-#   brew install poppler
-#
-# Ubuntu/Debian:
-#   sudo apt install poppler-utils
+streamlit>=1.36
+pandas>=2.2
+numpy>=1.26
+camelot-py[base]>=1.0  # optional but recommended
+pdfplumber>=0.11       # optional but recommended
+pymupdf>=1.24          # optional; used for fast rendering to images
+pdf2image>=1.17        # optional fallback for rendering
+pytesseract>=0.3.10    # for OCR (fallback)
+img2table>=1.4.0       # lightweight table detection for scanned pages
+Pillow>=10.3
